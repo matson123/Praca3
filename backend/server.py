@@ -109,12 +109,19 @@ async def get_optional_user(request: Request) -> Optional[dict]:
 
 
 def set_auth_cookie(response: Response, token: str):
+    # Env-driven so the same code works both in HTTPS/cross-site (Emergent)
+    # and in http://localhost (local dev).
+    secure = os.environ.get("COOKIE_SECURE", "true").lower() == "true"
+    samesite = os.environ.get("COOKIE_SAMESITE", "none").lower()
+    # Browsers require secure=True whenever SameSite=None.
+    if samesite == "none":
+        secure = True
     response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,
-        secure=True,
-        samesite="none",
+        secure=secure,
+        samesite=samesite,
         max_age=ACCESS_TOKEN_MINUTES * 60,
         path="/",
     )
@@ -905,7 +912,8 @@ app.include_router(api)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_origins=[o.strip() for o in os.environ.get("CORS_ORIGINS", "*").split(",") if o.strip()],
+    allow_origin_regex=os.environ.get("CORS_ORIGIN_REGEX") or None,
     allow_methods=["*"],
     allow_headers=["*"],
 )

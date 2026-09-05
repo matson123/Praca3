@@ -115,17 +115,23 @@ W nowym oknie PowerShell:
 ```powershell
 cd frontend
 
-# 1. Zainstaluj zależności
-npm install
-
-# 2. Skopiuj przykładowy plik .env
+# 1. Skopiuj przykładowy plik .env
 copy .env.example .env
 
-# 3. Uruchom aplikację
+# 2. Zainstaluj zależności (użyj `npm ci` gdy chcesz zainstalować dokładnie
+#    wersje z package-lock.json – zalecane w CI/CD).
+npm install
+
+# 3. Uruchom aplikację w trybie deweloperskim
 npm start
+
+# 4. (opcjonalnie) Zbuduj wersję produkcyjną
+npm run build
 ```
 
 Aplikacja otworzy się w przeglądarce pod `http://localhost:3000` i połączy się z backendem na `http://localhost:8000`.
+
+> **Uwaga:** projekt jest kompatybilny z **Node.js 20 LTS**. `npm install` przechodzi bez `--legacy-peer-deps` ani `--force`. Ostrzeżenie `[visual-edits] @emergentbase/visual-edits not installed` jest nieszkodliwe – ten plugin działa tylko w środowisku Emergent i jest opcjonalny.
 
 ## 4) Zmienne środowiskowe
 
